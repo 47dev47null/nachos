@@ -1,0 +1,16 @@
+*.flat
+swapfile.*
+nachos
+coff2noff
+coff2flat
+*.o
+*.coff
+*~
+add
+halt
+matmult
+segments
+shell
+sort
+tags
+.c9revisions/

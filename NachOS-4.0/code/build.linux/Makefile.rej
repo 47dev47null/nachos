@@ -1,0 +1,61 @@
+--- n/code/build.linux/Makefile	2002-12-16 18:57:00.000000000 +0800
++++ NachOS-4.0/code/build.linux/Makefile	2008-09-17 15:07:32.000000000 +0800
+@@ -200,8 +200,9 @@
+ # break the thread system.  You might want to use -fno-inline if
+ # you need to call some inline functions from the debugger.
+ 
+-CFLAGS = -g -Wall -fwritable-strings $(INCPATH) $(DEFINES) $(HOSTCFLAGS) -DCHANGED
+-LDFLAGS =
++CFLAGS = -g -Wall $(INCPATH) $(DEFINES) $(HOSTCFLAGS) -DCHANGED -m32
++LDFLAGS = -m32
++CPP_AS_FLAGS= -m32
+ 
+ #####################################################################
+ CPP=/lib/cpp
+@@ -210,7 +211,7 @@
+ AS = as
+ RM = /bin/rm
+ 
+-INCPATH = -I../network -I../filesys -I../userprog -I../threads -I../machine -I../lib
++INCPATH = -I../network -I../filesys -I../userprog -I../threads -I../machine -I../lib -I-
+ 
+ PROGRAM = nachos
+ 
+@@ -336,13 +337,12 @@
+ $(C_OFILES): %.o:
+ 	$(CC) $(CFLAGS) -c $<
+ 
+-switch.o: ../threads/switch.s
+-	$(CPP) $(CPP_AS_FLAGS) -P $(INCPATH) $(HOSTCFLAGS) ../threads/switch.s > swtch.s
+-	$(AS) -o switch.o swtch.s
++switch.o: ../threads/switch.S
++	$(CC) $(CPP_AS_FLAGS) -P $(INCPATH) $(HOSTCFLAGS) -c ../threads/switch.S
+ 
+ depend: $(CFILES) $(HFILES)
+ 	$(CC) $(INCPATH) $(DEFINES) $(HOSTCFLAGS) -DCHANGED -M $(CFILES) > makedep
+-	@echo '/^# DO NOT DELETE THIS LINE/+2,$$d' >eddep
++	@echo '/^# DO NOT DELETE THIS LINE/+1,$$d' >eddep
+ 	@echo '$$r makedep' >>eddep
+ 	@echo 'w' >>eddep
+ 	@echo 'q' >>eddep
+@@ -354,12 +354,19 @@
+ 
+ clean:
+ 	$(RM) -f $(OFILES)
+-	$(RM) -f swtch.s
+ 
+ distclean: clean
+ 	$(RM) -f $(PROGRAM)
+ 	$(RM) -f DISK_?
+ 	$(RM) -f core
+ 	$(RM) -f SOCKET_?
++	@echo '/^# DO NOT DELETE THIS LINE/+1,$$d' >eddep
++	@echo 'w' >>eddep
++	@echo 'q' >>eddep
++	ed - Makefile.dep < eddep
++	rm eddep 
++	@echo '# DEPENDENCIES MUST END AT END OF FILE' >> Makefile.dep
++	@echo '# IF YOU PUT STUFF HERE IT WILL GO AWAY' >> Makefile.dep
++	@echo '# see make depend above' >> Makefile.dep
+ 
+ include Makefile.dep

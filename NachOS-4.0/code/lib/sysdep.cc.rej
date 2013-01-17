@@ -1,0 +1,30 @@
+--- n/code/lib/sysdep.cc	2002-12-16 18:57:00.000000000 +0800
++++ NachOS-4.0/code/lib/sysdep.cc	2008-09-17 15:06:47.000000000 +0800
+@@ -26,12 +26,13 @@
+ #include "copyright.h"
+ #include "debug.h"
+ #include "sysdep.h"
+-#include "stdlib.h"
+-#include "unistd.h"
+-#include "sys/time.h"
+-#include "sys/file.h"
++#include <stdlib.h>
++#include <unistd.h>
++#include <sys/time.h>
++#include <sys/file.h>
+ #include <sys/socket.h>
+ #include <sys/un.h>
++#include <cerrno>
+ 
+ #ifdef SOLARIS
+ // KMS
+@@ -509,9 +510,6 @@
+ ReadFromSocket(int sockID, char *buffer, int packetSize)
+ {
+     int retVal;
+-#if defined(__GNUC__) && __GNUC__ < 3
+-    extern int errno;
+-#endif
+     struct sockaddr_un uName;
+ #ifdef LINUX
+     socklen_t size = sizeof(uName);

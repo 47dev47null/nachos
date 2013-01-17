@@ -1,0 +1,24 @@
+--- n/code/test/Makefile	2002-12-16 18:57:00.000000000 +0800
++++ NachOS-4.0/code/test/Makefile	2008-09-17 15:06:47.000000000 +0800
+@@ -106,7 +106,7 @@
+ LD = $(GCCDIR)ld
+ 
+ INCDIR =-I../userprog -I../lib
+-CFLAGS = -G 0 -c $(INCDIR)
++CFLAGS = -G 0 -c $(INCDIR) -B../../../usr/local/nachos/lib/gcc-lib/decstation-ultrix/2.95.2/ -B../../../usr/local/nachos/decstation-ultrix/bin/
+ 
+ ifeq ($(hosttype),unknown)
+ PROGRAMS = unknownhost
+@@ -117,10 +117,8 @@
+ 
+ all: $(PROGRAMS)
+ 
+-start.o: start.s ../userprog/syscall.h
+-	$(CPP) $(CPPFLAGS) start.s > strt.s
+-	$(AS) $(ASFLAGS) -o start.o strt.s
+-	rm strt.s
++start.o: start.S ../userprog/syscall.h
++	$(CC) $(CFLAGS) $(ASFLAGS) -c start.S
+ 
+ halt.o: halt.c
+ 	$(CC) $(CFLAGS) -c halt.c
