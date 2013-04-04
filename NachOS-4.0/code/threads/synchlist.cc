@@ -110,6 +110,7 @@ SynchList<T>::SelfTestHelper (void* data)
     SynchList<T>* _this = (SynchList<T>*)data;
     for (int i = 0; i < 10; i++) {
         _this->Append(_this->selfTestPing->RemoveFront());
+        cout << "ping -> pong: " << i << "\n";
     }
 }
 
@@ -124,7 +125,8 @@ SynchList<T>::SelfTest(T val)
     helper->Fork(SynchList<T>::SelfTestHelper, this);
     for (int i = 0; i < 10; i++) {
         selfTestPing->Append(val);
-	ASSERT(val == this->RemoveFront());
+	    ASSERT(val == this->RemoveFront());
+        cout << "pong -> ping: " << i << "\n";
     }
     delete selfTestPing;
 }
