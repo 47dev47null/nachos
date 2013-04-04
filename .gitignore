@@ -12,5 +12,7 @@ matmult
 segments
 shell
 sort
+cscope.files
+cscope.out
+DISK_*
 tags
-.c9revisions/
