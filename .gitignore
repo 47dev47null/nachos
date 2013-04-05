@@ -16,3 +16,4 @@ cscope.files
 cscope.out
 DISK_*
 tags
+Makefile.dep
