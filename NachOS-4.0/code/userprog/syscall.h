@@ -34,6 +34,7 @@
 #define SC_ExecV	13
 #define SC_ThreadExit   14
 #define SC_ThreadJoin   15
+#define SC_Fork         16
 
 #define SC_Add		42
 
@@ -59,7 +60,7 @@ void Halt();
 
 int Add(int op1, int op2);
 
-/* Address space control operations: Exit, Exec, Execv, and Join */
+/* Address space control operations: Exit, Fork, Exec, Execv, and Join */
 
 /* This user program is done (status = 0 means exited normally). */
 void Exit(int status);	
@@ -85,7 +86,11 @@ SpaceId ExecV(int argc, char* argv[]);
  * Return the exit status.
  */
 int Join(SpaceId id); 	
- 
+
+/* Creates a new process by duplicating the calling process.
+ * Return the new created process id.
+ */
+SpaceId Fork();
 
 /* File system operations: Create, Remove, Open, Read, Write, Close
  * These functions are patterned after UNIX -- files represent

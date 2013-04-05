@@ -66,6 +66,10 @@ ExceptionHandler(ExceptionType which)
 	ASSERTNOTREACHED();
 	break;
 
+      case SC_Fork:
+    DEBUG(dbgSys, "Fork syscall\n");
+    break;
+
       case SC_Add:
 	DEBUG(dbgSys, "Add " << kernel->machine->ReadRegister(4) << " + " << kernel->machine->ReadRegister(5) << "\n");
 	
@@ -78,22 +82,6 @@ ExceptionHandler(ExceptionType which)
 	/* Prepare Result */
 	kernel->machine->WriteRegister(2, (int)result);
 	
-	/* Modify return point */
-	{
-	  /* set previous programm counter (debugging only)*/
-	  kernel->machine->WriteRegister(PrevPCReg, kernel->machine->ReadRegister(PCReg));
-
-	  /* set programm counter to next instruction (all Instructions are 4 byte wide)*/
-	  kernel->machine->WriteRegister(PCReg, kernel->machine->ReadRegister(PCReg) + 4);
-	  
-	  /* set next programm counter for brach execution */
-	  kernel->machine->WriteRegister(NextPCReg, kernel->machine->ReadRegister(PCReg)+4);
-	}
-
-	return;
-	
-	ASSERTNOTREACHED();
-
 	break;
 
       default:
@@ -105,5 +93,16 @@ ExceptionHandler(ExceptionType which)
       cerr << "Unexpected user mode exception" << (int)which << "\n";
       break;
     }
-    ASSERTNOTREACHED();
+
+	/* Modify return point */
+	{
+	  /* set previous programm counter (debugging only)*/
+	  kernel->machine->WriteRegister(PrevPCReg, kernel->machine->ReadRegister(PCReg));
+
+	  /* set programm counter to next instruction (all Instructions are 4 byte wide)*/
+	  kernel->machine->WriteRegister(PCReg, kernel->machine->ReadRegister(PCReg) + 4);
+	  
+	  /* set next programm counter for brach execution */
+	  kernel->machine->WriteRegister(NextPCReg, kernel->machine->ReadRegister(PCReg)+4);
+	}
 }

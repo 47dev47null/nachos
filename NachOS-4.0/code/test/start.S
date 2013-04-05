@@ -178,6 +178,14 @@ ThreadJoin:
 	j 	$31
 	.end ThreadJoin
 	
+	.globl Fork
+	.ent    Fork
+Fork:
+	addiu $2, $0, SC_Fork
+	syscall
+	j 	$31
+	.end Fork
+
 /* dummy function to keep gcc happy */
         .globl  __main
         .ent    __main

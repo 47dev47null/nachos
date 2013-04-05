@@ -7,6 +7,7 @@ coff2flat
 *.coff
 *~
 add
+fork
 halt
 matmult
 segments
