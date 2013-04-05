@@ -79,6 +79,8 @@ AddrSpace::AddrSpace()
     
     // zero out the entire address space
     bzero(kernel->machine->mainMemory, MemorySize);
+
+    InitProc();
 }
 
 //----------------------------------------------------------------------
@@ -311,6 +313,14 @@ AddrSpace::Translate(unsigned int vaddr, unsigned int *paddr, int isReadWrite)
     return NoException;
 }
 
-
-
-
+void
+AddrSpace::InitProc()
+{
+    proc = new Proc;
+    proc->pid = kernel->procmgr->getPID();
+    proc->ppid = 0;
+    proc->thread = kernel->currentThread;
+    proc->joinNum = -1;
+    proc->alive = true;
+    kernel->procmgr->procs[proc->pid] = proc;
+}

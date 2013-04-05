@@ -18,6 +18,16 @@
 
 #define UserStackSize		1024 	// increase this as necessary!
 
+class Thread;
+
+struct Proc {
+    Thread* thread;
+    int pid;
+    int ppid;
+    bool alive;
+    int joinNum;
+};
+
 class AddrSpace {
   public:
     AddrSpace();			// Create an address space.
@@ -39,6 +49,7 @@ class AddrSpace {
     // is 0 for Read, 1 for Write.
     ExceptionType Translate(unsigned int vaddr, unsigned int *paddr, int mode);
 
+    Proc *proc;
   private:
     TranslationEntry *pageTable;	// Assume linear page table translation
 					// for now!
@@ -47,6 +58,7 @@ class AddrSpace {
 
     void InitRegisters();		// Initialize user-level CPU registers,
 					// before jumping to user code
+    void InitProc();
 
 };
 
