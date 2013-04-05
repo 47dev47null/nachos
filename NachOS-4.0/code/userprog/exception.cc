@@ -52,6 +52,7 @@ void
 ExceptionHandler(ExceptionType which)
 {
     int type = kernel->machine->ReadRegister(2);
+	int result = 0;
 
     DEBUG(dbgSys, "Received Exception " << which << " type: " << type << "\n");
 
@@ -59,22 +60,24 @@ ExceptionHandler(ExceptionType which)
     case SyscallException:
       switch(type) {
       case SC_Halt:
-	DEBUG(dbgSys, "Shutdown, initiated by user program.\n");
-
+    DEBUG(dbgSys, "[System Call] Process " << kernel->currentThread->space->proc->pid
+            << " invoked Halt.");
 	SysHalt();
 
 	ASSERTNOTREACHED();
 	break;
 
       case SC_Fork:
-    DEBUG(dbgSys, "Fork syscall\n");
+    DEBUG(dbgSys, "[System Call] Process " << kernel->currentThread->space->proc->pid
+            << " invoked Fork.");
+    result = SysFork();
+    kernel->machine->WriteRegister(2, (int)result);
     break;
 
       case SC_Add:
 	DEBUG(dbgSys, "Add " << kernel->machine->ReadRegister(4) << " + " << kernel->machine->ReadRegister(5) << "\n");
 	
 	/* Process SysAdd Systemcall*/
-	int result;
 	result = SysAdd(/* int op1 */(int)kernel->machine->ReadRegister(4),
 			/* int op2 */(int)kernel->machine->ReadRegister(5));
 

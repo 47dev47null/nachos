@@ -69,17 +69,13 @@ AddrSpace::AddrSpace()
 {
     pageTable = new TranslationEntry[NumPhysPages];
     for (int i = 0; i < NumPhysPages; i++) {
-	pageTable[i].virtualPage = i;	// for now, virt page # = phys page #
-	pageTable[i].physicalPage = i;
-	pageTable[i].valid = TRUE;
-	pageTable[i].use = FALSE;
-	pageTable[i].dirty = FALSE;
-	pageTable[i].readOnly = FALSE;  
+        pageTable[i].virtualPage = i;	// for now, virt page # = phys page #
+        pageTable[i].physicalPage = i;
+        pageTable[i].valid = TRUE;
+        pageTable[i].use = FALSE;
+        pageTable[i].dirty = FALSE;
+        pageTable[i].readOnly = FALSE;  
     }
-    
-    // zero out the entire address space
-    bzero(kernel->machine->mainMemory, MemorySize);
-
     InitProc();
 }
 
@@ -107,13 +103,16 @@ AddrSpace::~AddrSpace()
 bool 
 AddrSpace::Load(char *fileName) 
 {
+    // zero out the entire address space
+    bzero(kernel->machine->mainMemory, MemorySize);
+
     OpenFile *executable = kernel->fileSystem->Open(fileName);
     NoffHeader noffH;
     unsigned int size;
 
     if (executable == NULL) {
-	cerr << "Unable to open file " << fileName << "\n";
-	return FALSE;
+        cerr << "Unable to open file " << fileName << "\n";
+        return FALSE;
     }
 
     executable->ReadAt((char *)&noffH, sizeof(noffH), 0);
@@ -329,7 +328,8 @@ AddrSpace*
 AddrSpace::Fork()                                                               
 {                                                                               
     //TODO: Have enough memory pages?                                           
-    AddrSpace *dup = new AddrSpace;                                             
+    AddrSpace *dup = new AddrSpace();                                             
+    ASSERT(proc == kernel->currentThread->space->proc);
     dup->proc->ppid = proc->pid;                                                
     dup->numPages = numPages;                                                   
     // copy page table                                                          
@@ -342,6 +342,6 @@ AddrSpace::Fork()
         dup->pageTable[i].dirty = pageTable[i].dirty;                           
         dup->pageTable[i].readOnly = pageTable[i].readOnly;                     
     }                                                                           
-                                                                                
+
     return dup;                                                                 
 }
