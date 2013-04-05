@@ -142,3 +142,6 @@ class Condition {
     List<Semaphore *> *waitQueue;	// list of waiting threads
 };
 #endif // SYNCH_H
+
+/* Elevator Test */
+void ElevatorTest(void);

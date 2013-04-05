@@ -297,3 +297,144 @@ void Condition::Broadcast(Lock* conditionLock)
         Signal(conditionLock);
     }
 }
+
+//----------------------------------------------------------------------
+// Elevator Test
+//----------------------------------------------------------------------
+
+static Lock *lock;
+static Condition *elev;
+static Condition **floors;
+static int *in, *out;
+static int s, dir, id;
+
+static void ElevatorHelper(int n)
+{
+    lock->Acquire();
+
+    while (true)
+    {
+        int i;
+        for (i = 1; i <= n; i++)
+            if (in[i] + out[i] > 0) 
+                break;
+        if (i > n)
+            elev->Wait(lock);
+
+        cout << "Elevator arrives on floor " << s << ".\n";
+
+        if (in[s] + out[s] > 0)
+        {
+            floors[s]->Broadcast(lock);
+            while (in[s] + out[s] > 0)
+                elev->Wait(lock);
+        }
+
+        for (int i = 0; i < 100; i++)
+            ;
+
+        s += dir;
+
+        if (s == 1 || s == n)
+            dir *= -1;
+    }
+
+    lock->Release();
+}
+
+static void Elevator(int n)
+{
+    lock = new Lock("Elevator lock");
+    elev = new Condition("Elevator condition");
+    floors = new Condition* [n+1];
+    in = new int [n+1];
+    out = new int [n+1];
+    for (int i = 1; i <= n; i++)
+    {
+        floors[i] = new Condition("floor");
+        in[i] = out [i] = 0;
+    }
+    s = dir = id = 1;
+    Thread *e = new Thread ("Elevator thread");
+    e->Fork((VoidFunctionPtr) ElevatorHelper, (void *)n);
+}
+
+typedef struct
+{
+    int id;
+    int f, t;
+} People;
+
+static void PeopleHelper(People *p)
+{
+    lock->Acquire();
+
+    cout << "Person " << p->id << " wants to go to floor " << p->t << " from floor " << p->f << ".\n";
+    
+    in[p->f]++;
+    elev->Signal(lock);
+    floors[p->f]->Wait(lock);
+
+    ASSERT(s == p->f);
+    cout << "Person " << p->id << " got into the elevator.\n";
+    out[p->t]++;
+    in[p->f]--;
+    elev->Signal(lock);
+    floors[p->t]->Wait(lock);
+
+    ASSERT(s == p->t);
+    cout << "Person " << p->id << " got out of the elevator.\n";
+    out[p->t]--;
+    elev->Signal(lock);
+
+    lock->Release();
+}
+
+static void FromTo(int f, int t)
+{
+    People *p = new People();
+    p->id = id++;
+    p->f = f;
+    p->t = t;
+
+    Thread *pt = new Thread("People thread");
+    pt->Fork((VoidFunctionPtr) PeopleHelper, (void *)p);
+}
+
+static void CleanElevatorTest(int n)
+{
+    lock->Acquire();
+    delete elev;
+    delete []in;
+    delete []out;
+    for (int i = 1; i <= n; i++)
+    {
+        delete floors[i];
+    }
+    delete []floors;
+    lock->Release();
+    delete lock;
+}
+
+
+void ElevatorTest()
+{
+    cout << "Elevator starts.\n";
+    Elevator(5);
+    FromTo(1, 4);
+    FromTo(3, 1);
+    FromTo(2, 4);
+    FromTo(5, 1);
+    int i;
+    while (true)
+    {
+        for (i = 1; i <= 5; i++)
+            if (in[i] + out[i] > 0) 
+                break;
+        if (i > 5)
+            break;
+        kernel->currentThread->Yield();
+    }
+    cout << "Elevator halts.\n";
+    CleanElevatorTest(5);
+}

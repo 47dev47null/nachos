@@ -159,6 +159,7 @@ Kernel::ThreadSelfTest() {
    synchList->SelfTest(9);
    delete synchList;
 
+   ElevatorTest();
 }
 
 //----------------------------------------------------------------------
