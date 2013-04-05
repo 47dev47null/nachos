@@ -324,3 +324,24 @@ AddrSpace::InitProc()
     proc->alive = true;
     kernel->procmgr->procs[proc->pid] = proc;
 }
+
+AddrSpace*                                                                      
+AddrSpace::Fork()                                                               
+{                                                                               
+    //TODO: Have enough memory pages?                                           
+    AddrSpace *dup = new AddrSpace;                                             
+    dup->proc->ppid = proc->pid;                                                
+    dup->numPages = numPages;                                                   
+    // copy page table                                                          
+    for (int i = 0; i < numPages; i++)                                          
+    {                                                                           
+        dup->pageTable[i].virtualPage = pageTable[i].virtualPage;               
+        dup->pageTable[i].physicalPage = pageTable[i].physicalPage;             
+        dup->pageTable[i].valid = pageTable[i].valid;                           
+        dup->pageTable[i].use = pageTable[i].use;                               
+        dup->pageTable[i].dirty = pageTable[i].dirty;                           
+        dup->pageTable[i].readOnly = pageTable[i].readOnly;                     
+    }                                                                           
+                                                                                
+    return dup;                                                                 
+}
