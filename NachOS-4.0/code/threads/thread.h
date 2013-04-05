@@ -127,6 +127,8 @@ class Thread {
   public:
     void SaveUserState();		// save user-level register state
     void RestoreUserState();		// restore user-level register state
+    void WriteUserRegister(int num, int value);
+
 
     AddrSpace *space;			// User code this thread is running.
 };

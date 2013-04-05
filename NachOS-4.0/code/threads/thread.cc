@@ -395,6 +395,12 @@ Thread::RestoreUserState()
 	kernel->machine->WriteRegister(i, userRegisters[i]);
 }
 
+void
+Thread::WriteUserRegister(int num, int value)
+{
+    ASSERT((num >=0) && (num < NumTotalRegs));
+    userRegisters[num] = value;
+}
 
 //----------------------------------------------------------------------
 // SimpleThread
