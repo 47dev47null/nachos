@@ -18,6 +18,7 @@
 #include "alarm.h"
 #include "filesys.h"
 #include "machine.h"
+#include "procmgr.h"
 
 class PostOfficeInput;
 class PostOfficeOutput;
@@ -54,6 +55,7 @@ class Kernel {
     SynchConsoleOutput *synchConsoleOut;
     SynchDisk *synchDisk;
     FileSystem *fileSystem;     
+    ProcessManager *procmgr;
     PostOfficeInput *postOfficeIn;
     PostOfficeOutput *postOfficeOut;
 
