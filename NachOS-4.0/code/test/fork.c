@@ -3,6 +3,9 @@
 int
 main()
 {
-    Fork();
+    int pid = 0;
+    pid = Fork();
+    while (pid > 0)
+        ;
     Halt();
 }
