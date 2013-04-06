@@ -74,6 +74,11 @@ ExceptionHandler(ExceptionType which)
     kernel->machine->WriteRegister(2, (int)result);
     break;
 
+      case SC_Exec:
+    DEBUG(dbgSys, "[System Call] Process " << kernel->currentThread->space->proc->pid
+            << " invoked Exec.");
+    break;
+
       case SC_Add:
 	DEBUG(dbgSys, "Add " << kernel->machine->ReadRegister(4) << " + " << kernel->machine->ReadRegister(5) << "\n");
 	
