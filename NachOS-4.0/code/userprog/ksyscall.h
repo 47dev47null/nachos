@@ -40,7 +40,7 @@ int SysFork()
     AddrSpace *dup = kernel->currentThread->space->Fork();                      
                                                                                 
     if (dup == NULL)                                                            
-        return -ENOMEM;                                                          
+        return ENOMEM;                                                          
                                                                                 
     Thread *child = new Thread("child");                                        
     dup->proc->thread = child;                                                  

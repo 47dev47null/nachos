@@ -73,14 +73,18 @@ typedef int ThreadId;
 
 /* Run the specified executable, with no args */
 /* This can be implemented as a call to ExecV.
+ * Returns only if an error has have occurred.
+ * The negative return value indicates the type of error.
  */ 
-SpaceId Exec(char* exec_name);
+int Exec(char* exec_name);
 
 /* Run the executable, stored in the Nachos file "argv[0]", with
  * parameters stored in argv[1..argc-1] and return the 
  * address space identifier
+ * Returns only if an error has have occurred.
+ * The negative return value indicates the type of error.
  */
-SpaceId ExecV(int argc, char* argv[]);
+int ExecV(int argc, char* argv[]);
  
 /* Only return once the user program "id" has finished.  
  * Return the exit status.
@@ -89,6 +93,7 @@ int Join(SpaceId id);
 
 /* Creates a new process by duplicating the calling process.
  * Return the new created process id.
+ * If return value is negative, it indicates an error.
  */
 SpaceId Fork();
 
