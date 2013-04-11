@@ -51,6 +51,10 @@ class AddrSpace {
     // is 0 for Read, 1 for Write.
     ExceptionType Translate(unsigned int vaddr, unsigned int *paddr, int mode);
 
+    void ReadFile(int virtAddr, OpenFile *file, int size, int inFileAddr);
+
+    int userReadWrite(char *buffer, int virtAddr, int size, int rflag);
+
     Proc *proc;
   private:
     TranslationEntry *pageTable;	// Assume linear page table translation

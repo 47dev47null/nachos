@@ -57,6 +57,47 @@ SwapHeader (NoffHeader *noffH)
 #endif
 }
 
+int 
+AddrSpace::userReadWrite(char *buffer, int virtAddr, int size, int rflag)
+{
+    unsigned int vpn = (unsigned) virtAddr / PageSize;
+    int offset = virtAddr % PageSize;
+    // handle cross pages
+    int copySize = min(size, PageSize - offset);
+    while (size)
+    {
+        int pa = pageTable[vpn].physicalPage * PageSize + offset;
+        if (rflag)
+            bcopy(buffer, kernel->machine->mainMemory + pa, copySize);
+        else
+            bcopy(kernel->machine->mainMemory + pa, buffer, copySize);
+        size -= copySize;
+        buffer += copySize;
+        vpn++;
+        offset = 0;
+        copySize = min(size, PageSize);
+    }
+    return 1;
+}
+
+void
+AddrSpace::ReadFile(int virtAddr, OpenFile *file, int size, int inFileAddr)
+{
+    int readSize;
+    char *diskBuffer = new char[PageSize];
+    bzero(diskBuffer, PageSize);
+    while (size)
+    {
+        readSize = min(PageSize, size);
+        file->ReadAt(diskBuffer, PageSize, inFileAddr);
+        userReadWrite(diskBuffer, virtAddr, readSize, 1);
+        inFileAddr += readSize;
+        virtAddr += readSize;
+        size -= readSize;
+    }
+    delete []diskBuffer;
+}
+
 //----------------------------------------------------------------------
 // AddrSpace::AddrSpace
 // 	Create an address space to run a user program.
@@ -67,7 +108,6 @@ SwapHeader (NoffHeader *noffH)
 
 AddrSpace::AddrSpace()
 {
-    pageTable = new TranslationEntry[NumPhysPages];
     // pageTable is installed in Load or Fork
     InitProc();
 }
@@ -96,18 +136,6 @@ AddrSpace::~AddrSpace()
 bool 
 AddrSpace::Load(char *fileName) 
 {
-    // zero out the entire address space
-    // bzero(kernel->machine->mainMemory, MemorySize);
-
-    for (int i = 0; i < NumPhysPages; i++) {
-        pageTable[i].virtualPage = i;	// for now, virt page # = phys page #
-        pageTable[i].physicalPage = i;
-        pageTable[i].valid = TRUE;
-        pageTable[i].use = FALSE;
-        pageTable[i].dirty = FALSE;
-        pageTable[i].readOnly = FALSE;  
-    }
-
     OpenFile *executable = kernel->fileSystem->Open(fileName);
     NoffHeader noffH;
     unsigned int size;
@@ -145,30 +173,51 @@ AddrSpace::Load(char *fileName)
 
     DEBUG(dbgAddr, "Initializing address space: " << numPages << ", " << size);
 
+    pageTable = new TranslationEntry[numPages];
+    ASSERT(kernel->memmgr->reservePages(numPages));
+    for (int i = 0; i < numPages; i++) {
+        pageTable[i].virtualPage = i;
+        int ppn = kernel->memmgr->getPage();
+        pageTable[i].physicalPage = ppn;
+        DEBUG(dbgAddr, "[Page Table]: ppn " << ppn << " vpn " << i);
+        pageTable[i].valid = TRUE;
+        pageTable[i].use = FALSE;
+        pageTable[i].dirty = FALSE;
+        pageTable[i].readOnly = FALSE;
+        bzero(kernel->machine->mainMemory + ppn * PageSize, PageSize);
+    }
+
+
 // then, copy in the code and data segments into memory
-// Note: this code assumes that virtual address = physical address
     if (noffH.code.size > 0) {
         DEBUG(dbgAddr, "Initializing code segment.");
-	DEBUG(dbgAddr, noffH.code.virtualAddr << ", " << noffH.code.size);
-        executable->ReadAt(
-		&(kernel->machine->mainMemory[noffH.code.virtualAddr]), 
-			noffH.code.size, noffH.code.inFileAddr);
+
+	    DEBUG(dbgAddr, "VA: " << noffH.code.virtualAddr << ", "
+                << "Size: " << noffH.code.size);
+ 
+        ReadFile(noffH.code.virtualAddr, executable, 
+                noffH.code.size, noffH.code.inFileAddr);
     }
+
     if (noffH.initData.size > 0) {
         DEBUG(dbgAddr, "Initializing data segment.");
-	DEBUG(dbgAddr, noffH.initData.virtualAddr << ", " << noffH.initData.size);
-        executable->ReadAt(
-		&(kernel->machine->mainMemory[noffH.initData.virtualAddr]),
-			noffH.initData.size, noffH.initData.inFileAddr);
+
+	    DEBUG(dbgAddr, "VA: " << noffH.initData.virtualAddr << ", "
+                << "Size: " << noffH.initData.size);
+
+        ReadFile(noffH.initData.virtualAddr, executable,
+                noffH.initData.size, noffH.initData.inFileAddr);
     }
 
 #ifdef RDATA
     if (noffH.readonlyData.size > 0) {
         DEBUG(dbgAddr, "Initializing read only data segment.");
-	DEBUG(dbgAddr, noffH.readonlyData.virtualAddr << ", " << noffH.readonlyData.size);
-        executable->ReadAt(
-		&(kernel->machine->mainMemory[noffH.readonlyData.virtualAddr]),
-			noffH.readonlyData.size, noffH.readonlyData.inFileAddr);
+
+	    DEBUG(dbgAddr, "VA: " << noffH.readonlyData.virtualAddr << ", "
+                "Size: " << noffH.readonlyData.size);
+
+        ReadFile(noffH.readonlyData.virtualAddr, executable, 
+                noffH.readonlyData.size, noffH.readonlyData.inFileAddr);
     }
 #endif
 
@@ -336,15 +385,23 @@ AddrSpace::Fork()
     ASSERT(proc == kernel->currentThread->space->proc);
     dup->proc->ppid = proc->pid;                                                
     dup->numPages = numPages;                                                   
+    dup->pageTable = new TranslationEntry[numPages];
     // copy page table                                                          
+    ASSERT(kernel->memmgr->reservePages(numPages));
+    unsigned int src, dest;
     for (int i = 0; i < numPages; i++)                                          
     {                                                                           
-        dup->pageTable[i].virtualPage = pageTable[i].virtualPage;               
-        dup->pageTable[i].physicalPage = pageTable[i].physicalPage;             
+        dup->pageTable[i].virtualPage = i;               
+        dup->pageTable[i].physicalPage = kernel->memmgr->getPage();             
         dup->pageTable[i].valid = pageTable[i].valid;                           
         dup->pageTable[i].use = pageTable[i].use;                               
         dup->pageTable[i].dirty = pageTable[i].dirty;                           
-        dup->pageTable[i].readOnly = pageTable[i].readOnly;                     
+        dup->pageTable[i].readOnly = pageTable[i].readOnly;
+
+        src = pageTable[i].physicalPage * PageSize;
+        dest = dup->pageTable[i].physicalPage * PageSize;
+        bcopy(kernel->machine->mainMemory + src,
+                kernel->machine->mainMemory + dest, PageSize);
     }                                                                           
 
     return dup;                                                                 
