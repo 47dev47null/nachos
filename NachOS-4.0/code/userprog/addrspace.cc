@@ -179,7 +179,7 @@ AddrSpace::Load(char *fileName)
         pageTable[i].virtualPage = i;
         int ppn = kernel->memmgr->getPage();
         pageTable[i].physicalPage = ppn;
-        DEBUG(dbgAddr, "[Page Table]: ppn " << ppn << " vpn " << i);
+        DEBUG(dbgAddr, "[Page Table]: vpn " << i << " ppn " << ppn );
         pageTable[i].valid = TRUE;
         pageTable[i].use = FALSE;
         pageTable[i].dirty = FALSE;
@@ -388,11 +388,16 @@ AddrSpace::Fork()
     dup->pageTable = new TranslationEntry[numPages];
     // copy page table                                                          
     ASSERT(kernel->memmgr->reservePages(numPages));
+
+    DEBUG(dbgAddr, "Forking address space: " << numPages << " pages.");
+
     unsigned int src, dest;
     for (int i = 0; i < numPages; i++)                                          
     {                                                                           
         dup->pageTable[i].virtualPage = i;               
-        dup->pageTable[i].physicalPage = kernel->memmgr->getPage();             
+        int ppn = kernel->memmgr->getPage();
+        dup->pageTable[i].physicalPage = ppn;             
+        DEBUG(dbgAddr, "[Page Table]: vpn " << i << " ppn " << ppn);
         dup->pageTable[i].valid = pageTable[i].valid;                           
         dup->pageTable[i].use = pageTable[i].use;                               
         dup->pageTable[i].dirty = pageTable[i].dirty;                           
