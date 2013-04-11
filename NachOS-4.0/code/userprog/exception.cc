@@ -25,6 +25,9 @@
 #include "main.h"
 #include "syscall.h"
 #include "ksyscall.h"
+
+void SystemCallHandler(int type);
+
 //----------------------------------------------------------------------
 // ExceptionHandler
 // 	Entry point into the Nachos kernel.  Called when a user program
@@ -52,54 +55,16 @@ void
 ExceptionHandler(ExceptionType which)
 {
     int type = kernel->machine->ReadRegister(2);
-	int result = 0;
-
+	
     DEBUG(dbgSys, "Received Exception " << which << " type: " << type << "\n");
 
     switch (which) {
-    case SyscallException:
-      switch(type) {
-      case SC_Halt:
-    DEBUG(dbgSys, "[System Call] Process " << kernel->currentThread->space->proc->pid
-            << " invoked Halt.");
-	SysHalt();
-
-	ASSERTNOTREACHED();
-	break;
-
-      case SC_Fork:
-    DEBUG(dbgSys, "[System Call] Process " << kernel->currentThread->space->proc->pid
-            << " invoked Fork.");
-    result = SysFork();
-    kernel->machine->WriteRegister(2, (int)result);
-    break;
-
-      case SC_Exec:
-    DEBUG(dbgSys, "[System Call] Process " << kernel->currentThread->space->proc->pid
-            << " invoked Exec.");
-    break;
-
-      case SC_Add:
-	DEBUG(dbgSys, "Add " << kernel->machine->ReadRegister(4) << " + " << kernel->machine->ReadRegister(5) << "\n");
-	
-	/* Process SysAdd Systemcall*/
-	result = SysAdd(/* int op1 */(int)kernel->machine->ReadRegister(4),
-			/* int op2 */(int)kernel->machine->ReadRegister(5));
-
-	DEBUG(dbgSys, "Add returning with " << result << "\n");
-	/* Prepare Result */
-	kernel->machine->WriteRegister(2, (int)result);
-	
-	break;
-
-      default:
-	cerr << "Unexpected system call " << type << "\n";
-	break;
-      }
-      break;
+    	case SyscallException:
+      		SystemCallHandler(type);
+      	break;
     default:
-      cerr << "Unexpected user mode exception" << (int)which << "\n";
-      break;
+      	cerr << "Unexpected user mode exception" << (int)which << "\n";
+      	break;
     }
 
 	/* Modify return point */
@@ -113,4 +78,48 @@ ExceptionHandler(ExceptionType which)
 	  /* set next programm counter for brach execution */
 	  kernel->machine->WriteRegister(NextPCReg, kernel->machine->ReadRegister(PCReg)+4);
 	}
+}
+
+void SystemCallHandler(int type)
+{
+	int result = 0;
+	switch(type) {
+      	case SC_Halt:
+    		DEBUG(dbgSys, "[System Call] Process " << kernel->currentThread->space->proc->pid
+            		<< " invoked Halt.");
+
+			SysHalt();
+			ASSERTNOTREACHED();
+			break;
+
+      	case SC_Fork:
+    		DEBUG(dbgSys, "[System Call] Process " << kernel->currentThread->space->proc->pid
+            		<< " invoked Fork.");
+
+    		result = SysFork();
+    		kernel->machine->WriteRegister(2, (int)result);
+    		break;
+
+      	case SC_Exec:
+    		DEBUG(dbgSys, "[System Call] Process " << kernel->currentThread->space->proc->pid
+            		<< " invoked Exec.");
+    		break;
+
+      	case SC_Add:
+			DEBUG(dbgSys, "Add " << kernel->machine->ReadRegister(4) << " + " << kernel->machine->ReadRegister(5) << "\n");
+	
+			/* Process SysAdd Systemcall*/
+			result = SysAdd(/* int op1 */(int)kernel->machine->ReadRegister(4),
+			/* int op2 */(int)kernel->machine->ReadRegister(5));
+
+			DEBUG(dbgSys, "Add returning with " << result << "\n");
+			/* Prepare Result */
+			kernel->machine->WriteRegister(2, (int)result);
+	
+			break;
+
+      	default:
+			cerr << "Unexpected system call " << type << "\n";
+			break;
+    }
 }
