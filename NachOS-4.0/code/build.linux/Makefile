@@ -286,14 +286,16 @@ USERPROG_H = ../userprog/addrspace.h\
 	../userprog/syscall.h\
 	../userprog/synchconsole.h\
 	../userprog/noff.h\
-	../userprog/procmgr.h
+	../userprog/procmgr.h\
+	../userprog/memmgr.h
 
 USERPROG_C = ../userprog/addrspace.cc\
 	../userprog/exception.cc\
 	../userprog/synchconsole.cc\
-	../userprog/procmgr.cc
+	../userprog/procmgr.cc\
+	../userprog/memmgr.cc
 
-USERPROG_O = addrspace.o exception.o synchconsole.o procmgr.o
+USERPROG_O = addrspace.o exception.o synchconsole.o procmgr.o memmgr.o
 
 FILESYS_H =../filesys/directory.h \
 	../filesys/filehdr.h\
