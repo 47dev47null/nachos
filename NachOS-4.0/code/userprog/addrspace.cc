@@ -68,14 +68,7 @@ SwapHeader (NoffHeader *noffH)
 AddrSpace::AddrSpace()
 {
     pageTable = new TranslationEntry[NumPhysPages];
-    for (int i = 0; i < NumPhysPages; i++) {
-        pageTable[i].virtualPage = i;	// for now, virt page # = phys page #
-        pageTable[i].physicalPage = i;
-        pageTable[i].valid = TRUE;
-        pageTable[i].use = FALSE;
-        pageTable[i].dirty = FALSE;
-        pageTable[i].readOnly = FALSE;  
-    }
+    // pageTable is installed in Load or Fork
     InitProc();
 }
 
@@ -104,7 +97,16 @@ bool
 AddrSpace::Load(char *fileName) 
 {
     // zero out the entire address space
-    bzero(kernel->machine->mainMemory, MemorySize);
+    // bzero(kernel->machine->mainMemory, MemorySize);
+
+    for (int i = 0; i < NumPhysPages; i++) {
+        pageTable[i].virtualPage = i;	// for now, virt page # = phys page #
+        pageTable[i].physicalPage = i;
+        pageTable[i].valid = TRUE;
+        pageTable[i].use = FALSE;
+        pageTable[i].dirty = FALSE;
+        pageTable[i].readOnly = FALSE;  
+    }
 
     OpenFile *executable = kernel->fileSystem->Open(fileName);
     NoffHeader noffH;
@@ -316,18 +318,20 @@ void
 AddrSpace::InitProc()
 {
     proc = new Proc;
+    // get new process id
     proc->pid = kernel->procmgr->getPID();
+    // set parent id to 0, which will be updated in Fork
     proc->ppid = 0;
     proc->thread = kernel->currentThread;
     proc->joinNum = -1;
     proc->alive = true;
+    // add proc to list
     kernel->procmgr->procs[proc->pid] = proc;
 }
 
 AddrSpace*                                                                      
 AddrSpace::Fork()                                                               
 {                                                                               
-    //TODO: Have enough memory pages?                                           
     AddrSpace *dup = new AddrSpace();                                             
     ASSERT(proc == kernel->currentThread->space->proc);
     dup->proc->ppid = proc->pid;                                                
