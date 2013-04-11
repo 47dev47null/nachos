@@ -23,6 +23,7 @@ MemoryManager::getPage()
     //TODO: what if result is -1, that is out of memory?
     ASSERT(result != -1);
     lock->Release();
+    return result;
 }
 
 void
