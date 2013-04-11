@@ -19,6 +19,7 @@
 #include "filesys.h"
 #include "machine.h"
 #include "procmgr.h"
+#include "memmgr.h"
 
 class PostOfficeInput;
 class PostOfficeOutput;
@@ -56,6 +57,7 @@ class Kernel {
     SynchDisk *synchDisk;
     FileSystem *fileSystem;     
     ProcessManager *procmgr;
+    MemoryManager *memmgr;
     PostOfficeInput *postOfficeIn;
     PostOfficeOutput *postOfficeOut;
 

@@ -102,6 +102,7 @@ Kernel::Initialize()
     synchConsoleOut = new SynchConsoleOutput(consoleOut); // output to stdout
     synchDisk = new SynchDisk();    //
     procmgr = new ProcessManager();
+    memmgr = new MemoryManager();
 #ifdef FILESYS_STUB
     fileSystem = new FileSystem();
 #else
@@ -130,6 +131,7 @@ Kernel::~Kernel()
     delete synchDisk;
     delete fileSystem;
     delete procmgr;
+    delete memmgr;
     delete postOfficeIn;
     delete postOfficeOut;
     
