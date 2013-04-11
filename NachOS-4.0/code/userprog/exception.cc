@@ -105,6 +105,11 @@ void SystemCallHandler(int type)
             		<< " invoked Exec.");
     		break;
 
+        case SC_ExecV:
+    		DEBUG(dbgSys, "[System Call] Process " << kernel->currentThread->space->proc->pid
+            		<< " invoked ExecV.");
+            break;
+
       	case SC_Add:
 			DEBUG(dbgSys, "Add " << kernel->machine->ReadRegister(4) << " + " << kernel->machine->ReadRegister(5) << "\n");
 	
