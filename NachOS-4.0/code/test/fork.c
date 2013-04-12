@@ -5,7 +5,7 @@ main()
 {
     int pid = 0;
     pid = Fork();
-    while (pid > 0)
+    while (pid > 0)     // spin father process
         ;
-    Halt();
+    Exec("../test/exec");   // child process executes exec
 }
