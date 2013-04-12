@@ -123,7 +123,11 @@ AddrSpace::~AddrSpace()
     if (pageTable != NULL)
     {
         for (int i = 0; i < numPages; i++)
+        {
             kernel->memmgr->clearPage(pageTable[i].physicalPage);
+            DEBUG(dbgAddr, "Physical Page: " << pageTable[i].physicalPage
+                    << " get freed!");
+        }
         delete pageTable;
     }
 }
@@ -146,7 +150,11 @@ AddrSpace::Load(char *fileName)
     if (pageTable != NULL)
     {
         for (int i = 0; i < numPages; i++)
+        {
             kernel->memmgr->clearPage(pageTable[i].physicalPage);
+            DEBUG(dbgAddr, "Physical Page: " << pageTable[i].physicalPage
+                    << " get freed!");
+        }
         delete pageTable;
     }
 
@@ -386,7 +394,7 @@ AddrSpace::InitProc()
     // set parent id to 0, which will be updated in Fork
     proc->ppid = 0;
     proc->thread = kernel->currentThread;
-    proc->joinNum = -1;
+    proc->joinNum = 0;
     proc->alive = true;
     proc->retValue = 0;
     // add proc to list

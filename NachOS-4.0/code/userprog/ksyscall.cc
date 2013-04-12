@@ -210,5 +210,20 @@ int SysJoin(int pid)
 
 void SysExit(int rc)
 {
-    DEBUG(dbgSys, "[System Call] Exit Handler get called.");
+    Proc *proc = kernel->currentThread->space->proc;
+    proc->retValue = rc;
+    proc->alive = FALSE;
+
+    Lock *procLock = kernel->procmgr->getLock(proc->pid);
+    procLock->Acquire();
+    kernel->procmgr->getCondition(proc->pid)->Broadcast(procLock);
+    procLock->Release();
+
+    delete kernel->currentThread->space;
+
+    DEBUG(dbgSys, "[System Call] Exit with " << rc << ".");
+
+    kernel->currentThread->Finish();
+
+    ASSERTNOTREACHED();
 }

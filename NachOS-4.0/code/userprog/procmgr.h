@@ -18,12 +18,12 @@ class ProcessManager
         Lock* getLock(int pid);
         Condition* getCondition(int pid);
         Proc *procs[MaxNumProcesses];
+        bool validPID(int pid);
     private:
         Bitmap *flags;
         Lock *lock;
         Lock *locks[MaxNumProcesses];
         Condition *conds[MaxNumProcesses];
-        bool validPID(int pid);
 };
 
 #endif

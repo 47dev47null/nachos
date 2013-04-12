@@ -35,7 +35,7 @@ ProcessManager::getPID()
     {
         for (int i = 0; i < MaxNumProcesses; i++)
         {
-            if (procs[i] && !procs[i]->alive && procs[i]->joinNum == -1)
+            if (procs[i] && !procs[i]->alive && procs[i]->joinNum == 0)
             {
                 delete procs[i];
                 procs[i] = NULL;
