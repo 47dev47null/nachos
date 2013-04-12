@@ -79,8 +79,7 @@ typedef int ThreadId;
 int Exec(char* exec_name);
 
 /* Run the executable, stored in the Nachos file "argv[0]", with
- * parameters stored in argv[1..argc-1] and return the 
- * address space identifier
+ * parameters stored in argv[1..argc-1].
  * Returns only if an error has have occurred.
  * The negative return value indicates the type of error.
  */

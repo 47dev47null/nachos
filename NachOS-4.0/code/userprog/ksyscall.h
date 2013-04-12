@@ -13,7 +13,7 @@
 
 #include "kernel.h"
 
-#define MAX_FILENAME_LEN 20
+#define MAX_ARG_LEN 20
 
 // ReadStr
 // read string from virtAddr to buf
@@ -100,16 +100,49 @@ int SysFork()
 
 int SysExec(int uname)
 {
-    char *kname = new char[MAX_FILENAME_LEN];
-    if (ReadStr(uname, kname, MAX_FILENAME_LEN) == -1)
+    char *kname = new char[MAX_ARG_LEN];
+    if (ReadStr(uname, kname, MAX_ARG_LEN) == -1)
         return 1;
     if (kernel->currentThread->space->Load(kname) == FALSE)
         return 1;
-    delete[] kname;
+    delete []kname;
     DEBUG(dbgSys, "[System Call] New Executable Loaded.");
     kernel->currentThread->space->Execute();
     ASSERTNOTREACHED();
     return 0;
 }
 
+int SysExecV(int argc, int argv)
+{
+    // get progname, and store it in kprogname
+    int uprogname;
+    char *kprogname = new char[MAX_ARG_LEN];
+    if (kernel->machine->ReadMem(argv, sizeof(char *), &uprogname) == FALSE)
+        return 1;
+    if (ReadStr(uprogname, kprogname, MAX_ARG_LEN) == -1)
+        return 1;
+    DEBUG(dbgSys, "[System Call] ProgName: " << kprogname);
+
+    // get args, and store them in kargv
+    int uargv;
+    char **kargv = new char*[argc-1];
+    for (int i = 1; i < argc; i++)
+    {
+        kargv[i-1] = new char[MAX_ARG_LEN];
+        if (kernel->machine->ReadMem(argv + i * sizeof(char *), sizeof(char *),
+                    &uargv) == FALSE)
+            return 1;
+        if (ReadStr(uargv, kargv[i-1], MAX_ARG_LEN) == -1)
+            return 1;
+        DEBUG(dbgSys, "[System Call] Arg " << i << ": " << kargv[i-1]);
+    }
+
+    //if (kernel->currentThread->space->Load(kprogname) == FALSE)
+        return 1;
+    //DEBUG(dbgSys, "[System Call] Program " << kprogname << " Loaded.");
+
+    // set up stack
+
+    return 0;
+}
 #endif /* ! __USERPROG_KSYSCALL_H__ */
