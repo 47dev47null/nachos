@@ -82,7 +82,11 @@ ExceptionHandler(ExceptionType which)
 
 void SystemCallHandler(int type)
 {
-	int result = 0;
+	int ret;
+    bool hasret = false;
+    int arg1 = kernel->machine->ReadRegister(4);
+    int arg2 = kernel->machine->ReadRegister(5);
+    int arg3 = kernel->machine->ReadRegister(6);
 	switch(type) {
       	case SC_Halt:
     		DEBUG(dbgSys, "[System Call] Process " << kernel->currentThread->space->proc->pid
@@ -96,8 +100,8 @@ void SystemCallHandler(int type)
     		DEBUG(dbgSys, "[System Call] Process " << kernel->currentThread->space->proc->pid
             		<< " invoked Fork.");
 
-    		result = SysFork();
-    		kernel->machine->WriteRegister(2, (int)result);
+    		ret = SysFork();
+            hasret = true;
     		break;
 
       	case SC_Exec:
@@ -114,12 +118,11 @@ void SystemCallHandler(int type)
 			DEBUG(dbgSys, "Add " << kernel->machine->ReadRegister(4) << " + " << kernel->machine->ReadRegister(5) << "\n");
 	
 			/* Process SysAdd Systemcall*/
-			result = SysAdd(/* int op1 */(int)kernel->machine->ReadRegister(4),
+			ret = SysAdd(/* int op1 */(int)kernel->machine->ReadRegister(4),
 			/* int op2 */(int)kernel->machine->ReadRegister(5));
 
-			DEBUG(dbgSys, "Add returning with " << result << "\n");
-			/* Prepare Result */
-			kernel->machine->WriteRegister(2, (int)result);
+			DEBUG(dbgSys, "Add returning with " << ret << "\n");
+            hasret = true;
 	
 			break;
 
@@ -127,4 +130,6 @@ void SystemCallHandler(int type)
 			cerr << "Unexpected system call " << type << "\n";
 			break;
     }
+    if (hasret)
+    	kernel->machine->WriteRegister(2, (int)ret);
 }
