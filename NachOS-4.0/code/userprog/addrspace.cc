@@ -136,6 +136,14 @@ AddrSpace::~AddrSpace()
 bool 
 AddrSpace::Load(char *fileName) 
 {
+    // drop original pageTable and free corresponding memory (if any)
+    if (pageTable != NULL)
+    {
+        for (int i = 0; i < numPages; i++)
+            kernel->memmgr->clearPage(pageTable[i].physicalPage);
+        delete pageTable;
+    }
+
     OpenFile *executable = kernel->fileSystem->Open(fileName);
     NoffHeader noffH;
     unsigned int size;
