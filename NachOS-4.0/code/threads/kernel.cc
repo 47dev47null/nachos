@@ -103,6 +103,7 @@ Kernel::Initialize()
     synchDisk = new SynchDisk();    //
     procmgr = new ProcessManager();
     memmgr = new MemoryManager();
+    diskBuffer = new char[PageSize];
 #ifdef FILESYS_STUB
     fileSystem = new FileSystem();
 #else
@@ -132,6 +133,7 @@ Kernel::~Kernel()
     delete fileSystem;
     delete procmgr;
     delete memmgr;
+    delete []diskBuffer;
     delete postOfficeIn;
     delete postOfficeOut;
     

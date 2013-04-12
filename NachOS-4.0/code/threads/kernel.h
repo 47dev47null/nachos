@@ -58,6 +58,7 @@ class Kernel {
     FileSystem *fileSystem;     
     ProcessManager *procmgr;
     MemoryManager *memmgr;
+    char *diskBuffer;
     PostOfficeInput *postOfficeIn;
     PostOfficeOutput *postOfficeOut;
 
