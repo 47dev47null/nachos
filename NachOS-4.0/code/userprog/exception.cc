@@ -56,7 +56,7 @@ ExceptionHandler(ExceptionType which)
 {
     int type = kernel->machine->ReadRegister(2);
 	
-    DEBUG(dbgSys, "Received Exception " << which << " type: " << type << "\n");
+    DEBUG(dbgSys, "\nReceived Exception " << which << " type: " << type);
 
     switch (which) {
     	case SyscallException:
