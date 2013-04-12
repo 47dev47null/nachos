@@ -116,6 +116,13 @@ void SystemCallHandler(int type)
             SysExecV(arg1, arg2);
             break;
 
+        case SC_Join:
+    		DEBUG(dbgSys, "[System Call] Process " << kernel->currentThread->space->proc->pid
+            		<< " invoked Join.");
+            ret = SysJoin(arg1);
+            hasret = true;
+            break;
+
       	case SC_Add:
 			DEBUG(dbgSys, "Add " << kernel->machine->ReadRegister(4) << " + " << kernel->machine->ReadRegister(5) << "\n");
 	

@@ -178,4 +178,11 @@ int SysExecV(int argc, int argv)
     ASSERTNOTREACHED();
     return 1;
 }
+
+int SysJoin(int pid)
+{
+    DEBUG(dbgSys, "[System Call] Join Handler get called.");
+    return 0;
+}
+
 #endif /* ! __USERPROG_KSYSCALL_H__ */
