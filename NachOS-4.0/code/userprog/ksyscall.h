@@ -13,7 +13,23 @@
 
 #include "kernel.h"
 
+#define MAX_FILENAME_LEN 20
 
+// copy string from user space to kernel space
+static int getString(char *uspace, char *kspace)
+{
+    char *hkspace = kspace;
+    DEBUG(dbgSys, "Copy String From User Space To Kernel Space");
+    int c;
+    do {
+        kernel->machine->ReadMem((int) uspace++, 1, &c);
+        *kspace++ = (char) c;
+        if (kspace - hkspace >= MAX_FILENAME_LEN)
+            return 1;
+    } while (c != '\0');
+    DEBUG(dbgSys, "String: " << hkspace);
+    return 0;
+}
 
 void SysHalt()
 {
@@ -58,6 +74,20 @@ int SysFork()
     kernel->currentThread->Yield();                                             
 
     return dup->proc->pid;                                                      
+}
+
+int SysExec(char *uname)
+{
+    char *kname = new char[MAX_FILENAME_LEN];
+    if (getString(uname, kname))
+        return 1;
+    if (kernel->currentThread->space->Load(kname) == FALSE)
+        return 1;
+    delete[] kname;
+    DEBUG(dbgSys, "[System Call] New Executable Loaded.");
+    kernel->currentThread->space->Execute();
+    ASSERTNOTREACHED();
+    return 0;
 }
 
 #endif /* ! __USERPROG_KSYSCALL_H__ */
