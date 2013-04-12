@@ -16,10 +16,10 @@
 #define MAX_FILENAME_LEN 20
 
 // ReadStr
-// read string from virtaddr to buf
+// read string from virtAddr to buf
 // stop when meet '\0' or size characters readed.
 // return number of characters readed, including '\0'
-static int ReadStr(int virtAddr, char *buf, int size)
+static int ReadStr(int virtAddr, char *buf, unsigned size)
 {
     if (size <= 0)
         return -1;
@@ -30,7 +30,26 @@ static int ReadStr(int virtAddr, char *buf, int size)
     do {
         kernel->machine->ReadMem(virtAddr++, sizeof(char), (int *)sp);
     } while (*sp++ != '\0' && sp < buf + size);
-    DEBUG(dbgSys, "Read String: " << buf);
+    DEBUG(dbgSys, "read string: " << buf);
+    return sp - buf;
+}
+
+// WriteStr
+// write string from buf to virtAddr
+// stop when meet '\0' or size characters readed.
+// return number of characters readed, including '\0'
+static int WriteStr(int virtAddr, char *buf, unsigned size)
+{
+    if (size <= 0)
+        return -1;
+
+    DEBUG(dbgSys, "write string from kernel buffer to VA: " << virtAddr);
+
+    char *sp = buf;
+    do {
+        kernel->machine->WriteMem(virtAddr++, sizeof(char), (int)*sp);
+    } while (*sp++ != '\0' && sp < buf + size);
+    DEBUG(dbgSys, "write string: " << buf);     // Unreliable debug info!
     return sp - buf;
 }
 
