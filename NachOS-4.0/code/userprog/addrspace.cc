@@ -119,7 +119,13 @@ AddrSpace::AddrSpace()
 
 AddrSpace::~AddrSpace()
 {
-   delete pageTable;
+    // free memory pages this process occupys
+    if (pageTable != NULL)
+    {
+        for (int i = 0; i < numPages; i++)
+            kernel->memmgr->clearPage(pageTable[i].physicalPage);
+        delete pageTable;
+    }
 }
 
 
