@@ -31,4 +31,6 @@ int SysExecV(int argc, int argv);
 
 int SysJoin(int pid);
 
+void SysExit(int rc);
+
 #endif /* ! __USERPROG_KSYSCALL_H__ */

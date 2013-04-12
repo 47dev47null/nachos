@@ -123,6 +123,12 @@ void SystemCallHandler(int type)
             hasret = true;
             break;
 
+        case SC_Exit:
+    		DEBUG(dbgSys, "[System Call] Process " << kernel->currentThread->space->proc->pid
+            		<< " invoked Exit.");
+            SysExit(arg1);
+            break;
+
       	case SC_Add:
 			DEBUG(dbgSys, "Add " << kernel->machine->ReadRegister(4) << " + " << kernel->machine->ReadRegister(5) << "\n");
 	

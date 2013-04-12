@@ -178,7 +178,6 @@ int SysExecV(int argc, int argv)
 
 int SysJoin(int pid)
 {
-    DEBUG(dbgSys, "[System Call] Join Handler get called.");
     if (kernel->procmgr->validPID(pid) == FALSE)
     {
         DEBUG(dbgSys, "[System Call] Join a invalid pid: " << pid);
@@ -207,4 +206,9 @@ int SysJoin(int pid)
     procLock->Release();
 
     return retValue;
+}
+
+void SysExit(int rc)
+{
+    DEBUG(dbgSys, "[System Call] Exit Handler get called.");
 }
