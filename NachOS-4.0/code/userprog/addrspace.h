@@ -55,6 +55,9 @@ class AddrSpace {
 
     int userReadWrite(char *kspace, int virtAddr, int size, int wflag);
 
+    void InitRegisters();		// Initialize user-level CPU registers,
+					// before jumping to user code
+
     Proc *proc;
   private:
     TranslationEntry *pageTable;	// Assume linear page table translation
@@ -62,8 +65,6 @@ class AddrSpace {
     unsigned int numPages;		// Number of pages in the virtual 
 					// address space
 
-    void InitRegisters();		// Initialize user-level CPU registers,
-					// before jumping to user code
     void InitProc();
 
 };
