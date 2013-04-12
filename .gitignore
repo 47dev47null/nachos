@@ -10,6 +10,7 @@ add
 fork
 exec
 execv
+join
 halt
 matmult
 segments
