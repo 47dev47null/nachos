@@ -125,24 +125,57 @@ int SysExecV(int argc, int argv)
 
     // get args, and store them in kargv
     int uargv;
-    char **kargv = new char*[argc-1];
-    for (int i = 1; i < argc; i++)
+    char **kargv = new char*[argc];
+    for (int i = 0; i < argc; i++)
     {
-        kargv[i-1] = new char[MAX_ARG_LEN];
+        kargv[i] = new char[MAX_ARG_LEN];
         if (kernel->machine->ReadMem(argv + i * sizeof(char *), sizeof(char *),
                     &uargv) == FALSE)
             return 1;
-        if (ReadStr(uargv, kargv[i-1], MAX_ARG_LEN) == -1)
+        if (ReadStr(uargv, kargv[i], MAX_ARG_LEN) == -1)
             return 1;
-        DEBUG(dbgSys, "[System Call] Arg " << i << ": " << kargv[i-1]);
+        DEBUG(dbgSys, "[System Call] Arg " << i << ": " << kargv[i]);
     }
 
-    //if (kernel->currentThread->space->Load(kprogname) == FALSE)
+    if (kernel->currentThread->space->Load(kprogname) == FALSE)
         return 1;
-    //DEBUG(dbgSys, "[System Call] Program " << kprogname << " Loaded.");
+    DEBUG(dbgSys, "[System Call] Program " << kprogname << " Loaded.");
 
     // set up stack
+    int stackBottom;
+    int argHead;
 
-    return 0;
+    stackBottom = kernel->machine->ReadRegister(StackReg)
+        + 16 - UserStackSize + 16;
+
+    argHead = stackBottom + sizeof(char *) * argc;
+
+    for (int i = 0; i < argc; i++)
+    {
+        if (kernel->machine->WriteMem(stackBottom + i * sizeof(char *),
+                sizeof(char *), argHead) == FALSE)
+            return 1;
+        int len = WriteStr(argHead, kargv[i], MAX_ARG_LEN);
+        if (len == -1)
+            return 1;
+        argHead += len;
+
+        delete []kargv[i];
+    }
+    delete []kargv;
+    delete []kprogname;
+
+    // since we need to pass arguments,
+    // we do not use AddrSpace::Execute directly.
+    kernel->currentThread->space->InitRegisters();
+    kernel->currentThread->space->RestoreState();
+    // pass arguements
+    kernel->machine->WriteRegister(4, argc);
+    kernel->machine->WriteRegister(5, stackBottom);
+
+    kernel->machine->Run();
+
+    ASSERTNOTREACHED();
+    return 1;
 }
 #endif /* ! __USERPROG_KSYSCALL_H__ */
