@@ -284,6 +284,7 @@ THREAD_O = alarm.o kernel.o main.o scheduler.o synch.o thread.o
 
 USERPROG_H = ../userprog/addrspace.h\
 	../userprog/syscall.h\
+	../userprog/ksyscall.h\
 	../userprog/synchconsole.h\
 	../userprog/noff.h\
 	../userprog/procmgr.h\
@@ -291,11 +292,12 @@ USERPROG_H = ../userprog/addrspace.h\
 
 USERPROG_C = ../userprog/addrspace.cc\
 	../userprog/exception.cc\
+	../userprog/ksyscall.cc\
 	../userprog/synchconsole.cc\
 	../userprog/procmgr.cc\
 	../userprog/memmgr.cc
 
-USERPROG_O = addrspace.o exception.o synchconsole.o procmgr.o memmgr.o
+USERPROG_O = addrspace.o ksyscall.o exception.o synchconsole.o procmgr.o memmgr.o
 
 FILESYS_H =../filesys/directory.h \
 	../filesys/filehdr.h\
