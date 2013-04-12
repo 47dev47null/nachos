@@ -112,7 +112,7 @@ ifeq ($(hosttype),unknown)
 PROGRAMS = unknownhost
 else
 # change this if you create a new test program!
-PROGRAMS = add halt fork shell matmult sort segments exec
+PROGRAMS = add halt fork shell matmult sort segments exec execv
 endif
 
 all: $(PROGRAMS)
@@ -168,6 +168,12 @@ exec.o: exec.c
 exec: exec.o start.o
 	$(LD) $(LDFLAGS) start.o exec.o -o exec.coff
 	$(COFF2NOFF) exec.coff exec 
+
+execv.o: execv.c
+	$(CC) $(CFLAGS) -c execv.c
+execv: execv.o start.o
+	$(LD) $(LDFLAGS) start.o execv.o -o execv.coff
+	$(COFF2NOFF) execv.coff execv
 
 clean:
 clean:
