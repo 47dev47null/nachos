@@ -15,20 +15,23 @@
 
 #define MAX_FILENAME_LEN 20
 
-// copy string from user space to kernel space
-static int getString(char *uspace, char *kspace)
+// ReadStr
+// read string from virtaddr to buf
+// stop when meet '\0' or size characters readed.
+// return number of characters readed, including '\0'
+static int ReadStr(int virtAddr, char *buf, int size)
 {
-    char *hkspace = kspace;
-    DEBUG(dbgSys, "Copy String From User Space To Kernel Space");
-    int c;
+    if (size <= 0)
+        return -1;
+
+    DEBUG(dbgSys, "read string from VA: " << virtAddr << " to kernel buffer.");
+
+    char *sp = buf;
     do {
-        kernel->machine->ReadMem((int) uspace++, 1, &c);
-        *kspace++ = (char) c;
-        if (kspace - hkspace >= MAX_FILENAME_LEN)
-            return 1;
-    } while (c != '\0');
-    DEBUG(dbgSys, "String: " << hkspace);
-    return 0;
+        kernel->machine->ReadMem(virtAddr++, sizeof(char), (int *)sp);
+    } while (*sp++ != '\0' && sp < buf + size);
+    DEBUG(dbgSys, "Read String: " << buf);
+    return sp - buf;
 }
 
 void SysHalt()
@@ -76,10 +79,10 @@ int SysFork()
     return dup->proc->pid;                                                      
 }
 
-int SysExec(char *uname)
+int SysExec(int uname)
 {
     char *kname = new char[MAX_FILENAME_LEN];
-    if (getString(uname, kname))
+    if (ReadStr(uname, kname, MAX_FILENAME_LEN) == -1)
         return 1;
     if (kernel->currentThread->space->Load(kname) == FALSE)
         return 1;
