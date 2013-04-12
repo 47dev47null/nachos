@@ -26,6 +26,7 @@ struct Proc {
     int ppid;
     bool alive;
     int joinNum;
+    int retValue;
 };
 
 class AddrSpace {

@@ -388,6 +388,7 @@ AddrSpace::InitProc()
     proc->thread = kernel->currentThread;
     proc->joinNum = -1;
     proc->alive = true;
+    proc->retValue = 0;
     // add proc to list
     kernel->procmgr->procs[proc->pid] = proc;
 }
