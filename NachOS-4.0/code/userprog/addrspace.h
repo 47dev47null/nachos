@@ -53,7 +53,7 @@ class AddrSpace {
 
     void ReadFile(int virtAddr, OpenFile *file, int size, int inFileAddr);
 
-    int userReadWrite(char *buffer, int virtAddr, int size, int rflag);
+    int userReadWrite(char *kspace, int virtAddr, int size, int wflag);
 
     Proc *proc;
   private:

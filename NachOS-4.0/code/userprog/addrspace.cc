@@ -57,8 +57,9 @@ SwapHeader (NoffHeader *noffH)
 #endif
 }
 
+// read / write from kernel to user
 int 
-AddrSpace::userReadWrite(char *buffer, int virtAddr, int size, int rflag)
+AddrSpace::userReadWrite(char *kspace, int virtAddr, int size, int wflag)
 {
     unsigned int vpn = (unsigned) virtAddr / PageSize;
     int offset = virtAddr % PageSize;
@@ -67,12 +68,12 @@ AddrSpace::userReadWrite(char *buffer, int virtAddr, int size, int rflag)
     while (size)
     {
         int pa = pageTable[vpn].physicalPage * PageSize + offset;
-        if (rflag)
-            bcopy(buffer, kernel->machine->mainMemory + pa, copySize);
+        if (wflag)
+            bcopy(kspace, kernel->machine->mainMemory + pa, copySize);
         else
-            bcopy(kernel->machine->mainMemory + pa, buffer, copySize);
+            bcopy(kernel->machine->mainMemory + pa, kspace, copySize);
         size -= copySize;
-        buffer += copySize;
+        kspace += copySize;
         vpn++;
         offset = 0;
         copySize = min(size, PageSize);
@@ -80,22 +81,21 @@ AddrSpace::userReadWrite(char *buffer, int virtAddr, int size, int rflag)
     return 1;
 }
 
+// read <size> bytes from File <file> starting at <inFileAddr> to <virtAddr>
+// use kernel diskBuffer as an internel cache
 void
 AddrSpace::ReadFile(int virtAddr, OpenFile *file, int size, int inFileAddr)
 {
     int readSize;
-    char *diskBuffer = new char[PageSize];
-    bzero(diskBuffer, PageSize);
     while (size)
     {
         readSize = min(PageSize, size);
-        file->ReadAt(diskBuffer, PageSize, inFileAddr);
-        userReadWrite(diskBuffer, virtAddr, readSize, 1);
+        file->ReadAt(kernel->diskBuffer, PageSize, inFileAddr);
+        userReadWrite(kernel->diskBuffer, virtAddr, readSize, 1);
         inFileAddr += readSize;
         virtAddr += readSize;
         size -= readSize;
     }
-    delete []diskBuffer;
 }
 
 //----------------------------------------------------------------------
