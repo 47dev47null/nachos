@@ -34,5 +34,6 @@ main(int argc, char *argv[])
             argv[4][1] == 'r' &&
             argv[4][2] == 'g' &&
             argv[4][3] == '4')
-        Halt();
+        Add(1, 2);      // stub syscall to ensure we meet the if condition
+    Halt();
 }
