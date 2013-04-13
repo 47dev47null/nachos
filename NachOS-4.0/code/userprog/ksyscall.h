@@ -33,4 +33,6 @@ int SysJoin(int pid);
 
 void SysExit(int rc);
 
+int SysCreate(int uname);
+
 #endif /* ! __USERPROG_KSYSCALL_H__ */

@@ -129,6 +129,13 @@ void SystemCallHandler(int type)
             SysExit(arg1);
             break;
 
+        case SC_Create:
+    		DEBUG(dbgSys, "[System Call] Process " << kernel->currentThread->space->proc->pid
+            		<< " invoked Create.");
+            ret = SysCreate(arg1);
+            hasret = true;
+            break;
+
       	case SC_Add:
 			DEBUG(dbgSys, "Add " << kernel->machine->ReadRegister(4) << " + " << kernel->machine->ReadRegister(5) << "\n");
 	

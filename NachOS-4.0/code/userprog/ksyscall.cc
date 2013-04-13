@@ -227,3 +227,9 @@ void SysExit(int rc)
 
     ASSERTNOTREACHED();
 }
+
+int SysCreate(int uname)
+{
+    DEBUG(dbgSys, "[System Call] Create Handler Get Called!");
+    return 4;
+}
