@@ -231,5 +231,16 @@ void SysExit(int rc)
 int SysCreate(int uname)
 {
     DEBUG(dbgSys, "[System Call] Create Handler Get Called!");
-    return 4;
+    char *kname = new char[MAX_ARG_LEN];
+    if (ReadStr(uname, kname, MAX_ARG_LEN) == -1)
+    {
+        DEBUG(dbgSys, "[System Call] Couldn't get filename.");
+        return -1;
+    }
+    if (kernel->fileSystem->Create(kname) == FALSE)
+    {
+        DEBUG(dbgSys, "[System Call] Couldn't create file: " << kname);
+        return -1;
+    }
+    return 0;
 }
