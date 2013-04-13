@@ -123,6 +123,7 @@ typedef int OpenFileId;
 int Create(char *name);
 
 /* Remove a Nachos file, with name "name" */
+/* Return 0 on success, negative error code on failure */
 int Remove(char *name);
 
 /* Open the Nachos file "name", and return an "OpenFileId" that can 
