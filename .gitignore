@@ -11,6 +11,7 @@ fork
 exec
 execv
 join
+create
 halt
 matmult
 segments
