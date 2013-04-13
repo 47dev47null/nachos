@@ -35,4 +35,6 @@ void SysExit(int rc);
 
 int SysCreate(int uname);
 
+int SysRemove(int uname);
+
 #endif /* ! __USERPROG_KSYSCALL_H__ */

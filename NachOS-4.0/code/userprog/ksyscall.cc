@@ -230,7 +230,6 @@ void SysExit(int rc)
 
 int SysCreate(int uname)
 {
-    DEBUG(dbgSys, "[System Call] Create Handler Get Called!");
     char *kname = new char[MAX_ARG_LEN];
     if (ReadStr(uname, kname, MAX_ARG_LEN) == -1)
     {
@@ -240,6 +239,23 @@ int SysCreate(int uname)
     if (kernel->fileSystem->Create(kname) == FALSE)
     {
         DEBUG(dbgSys, "[System Call] Couldn't create file: " << kname);
+        return -1;
+    }
+    return 0;
+}
+
+int SysRemove(int uname)
+{
+    DEBUG(dbgSys, "[System Call] Remove Handler Get Called!");
+    char *kname = new char[MAX_ARG_LEN];
+    if (ReadStr(uname, kname, MAX_ARG_LEN) == -1)
+    {
+        DEBUG(dbgSys, "[System Call] Couldn't get filename.");
+        return -1;
+    }
+    if (kernel->fileSystem->Remove(kname) == FALSE)
+    {
+        DEBUG(dbgSys, "[System Call] Couldn't remove file: " << kname);
         return -1;
     }
     return 0;

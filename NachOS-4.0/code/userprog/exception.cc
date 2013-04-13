@@ -136,6 +136,13 @@ void SystemCallHandler(int type)
             hasret = true;
             break;
 
+        case SC_Remove:
+    		DEBUG(dbgSys, "[System Call] Process " << kernel->currentThread->space->proc->pid
+            		<< " invoked Remove.");
+            ret = SysRemove(arg1);
+            hasret = true;
+            break;
+
       	case SC_Add:
 			DEBUG(dbgSys, "Add " << kernel->machine->ReadRegister(4) << " + " << kernel->machine->ReadRegister(5) << "\n");
 	
