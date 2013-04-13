@@ -112,7 +112,7 @@ ifeq ($(hosttype),unknown)
 PROGRAMS = unknownhost
 else
 # change this if you create a new test program!
-PROGRAMS = add halt fork shell matmult sort segments exec execv join
+PROGRAMS = add halt fork shell matmult sort segments exec execv join create
 endif
 
 all: $(PROGRAMS)
@@ -181,6 +181,14 @@ join: join.o start.o
 	$(LD) $(LDFLAGS) start.o join.o -o join.coff
 	$(COFF2NOFF) join.coff join 
 
+create.o: create.c
+	$(CC) $(CFLAGS) -c create.c
+create: create.o start.o
+	$(LD) $(LDFLAGS) start.o create.o -o create.coff
+	$(COFF2NOFF) create.coff create 
+
+clean:
+clean:
 clean:
 clean:
 	$(RM) -f *.o *.ii
